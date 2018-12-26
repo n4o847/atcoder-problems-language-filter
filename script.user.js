@@ -48,8 +48,8 @@
       }
 
       fetchData({ user_id }) {
-          const url = new URL("https://kenkoooo.com/atcoder/atcoder-api/v2/results");
-          url.searchParams.set("users", user_id);
+          const url = new URL("https://kenkoooo.com/atcoder/atcoder-api/results");
+          url.searchParams.set("rivals", user_id);
           return fetch(url).then((res) => res.json()).then((data) => (this.data = data));
       }
 
