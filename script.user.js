@@ -61,22 +61,20 @@
             return Array.from(langs).sort();
         }
 
-        static problemToURL(entry) {
-            return `https://beta.atcoder.jp/contests/${entry.contest_id}/tasks/${entry.problem_id}`;
-        }
-
-        getACProblemsByLanguages(langs) {
+        getACProblemIdSetByLanguages(langs) {
             return new Set(
                 this.data
                     .filter((entry) => entry.result === "AC" && langs.has(entry.language))
-                    .map(App.problemToURL)
+                    .map((entry) => entry.problem_id)
             );
         }
 
         checkACProblemsByLanguages(langs) {
-            const urls = this.getACProblemsByLanguages(langs);
+            const ids = this.getACProblemIdSetByLanguages(langs);
             document.querySelectorAll("a").forEach((elem) => {
-                elem.parentNode.classList.toggle("info", urls.has(elem.href));
+                const match = elem.href.match(/\/contests\/[^/]+\/tasks\/([^/]+)/);
+                const check = !!match && ids.has(match[1]);
+                elem.parentNode.classList.toggle("info", check);
             });
         }
     }
