@@ -13,7 +13,7 @@
     class App {
         constructor() {
             this.data = [];
-            this.content = this.createForm();
+            this.form = null;
         }
 
         start() {
@@ -23,12 +23,20 @@
             this.update();
         }
 
-        update() {
+        async update() {
             const user = this.getCurrentUser();
             if (user) {
-                this.fetchData({ user }).then(() => {
-                    this.createCheckBoxList();
-                });
+                this.data = await this.fetchData({ user });
+                if (this.form) {
+                    this.removeForm(this.form);
+                }
+                this.form = this.createForm();
+                this.insertForm(this.form);
+            } else {
+                if (this.form) {
+                    this.removeForm(this.form);
+                    this.form = null;
+                }
             }
         }
 
@@ -41,22 +49,24 @@
             }
         }
 
-        createForm() {
-            const panel = document.createElement("div");
-            panel.className = "card";
-            panel.style.marginTop = "20px";
-            const content = document.createElement("div");
-            content.className = "card-body";
-            panel.appendChild(content);
-            const form = document.querySelector("#root > div > nav");
-            form.insertAdjacentElement("afterend", panel);
-            return content;
+        insertForm(form) {
+            const parent = document.querySelector("#root > div > div.container");
+            parent.insertAdjacentElement("afterbegin", form);
         }
 
-        createCheckBoxList() {
+        removeForm(form) {
+            form.parentNode.removeChild(form);
+        }
+
+        createForm() {
             const langs = this.getLanguageList();
             const searchLangs = new Set();
-            this.content.innerHTML = null;
+            const card = document.createElement("div");
+            card.className = "card";
+            card.style.marginTop = "20px";
+            const content = document.createElement("div");
+            content.className = "card-body";
+            card.appendChild(content);
             langs.forEach((lang) => {
                 const label = document.createElement("label");
                 label.style.marginLeft = "10px";
@@ -68,14 +78,17 @@
                     input.checked ? searchLangs.add(lang) : searchLangs.delete(lang);
                     this.checkACProblemsByLanguages(searchLangs);
                 });
-                this.content.appendChild(label);
+                content.appendChild(label);
             });
+            return card;
         }
 
-        fetchData({ user }) {
+        async fetchData({ user }) {
             const url = new URL("https://kenkoooo.com/atcoder/atcoder-api/results");
             url.searchParams.set("user", user);
-            return fetch(url).then((res) => res.json()).then((data) => (this.data = data));
+            const req = await fetch(url);
+            const data = await req.json();
+            return data;
         }
 
         getLanguageList() {
