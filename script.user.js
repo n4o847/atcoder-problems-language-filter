@@ -16,14 +16,39 @@
             this.content = this.createForm();
         }
 
+        start() {
+            window.addEventListener("hashchange", () => {
+                this.update();
+            });
+            this.update();
+        }
+
+        update() {
+            const user = this.getCurrentUser();
+            if (user) {
+                this.fetchData({ user }).then(() => {
+                    this.createCheckBoxList();
+                });
+            }
+        }
+
+        getCurrentUser() {
+            const args = location.hash.split("/");
+            if (args[1] === "table") {
+                return args[2];
+            } else {
+                return null;
+            }
+        }
+
         createForm() {
             const panel = document.createElement("div");
-            panel.className = "panel panel-default";
+            panel.className = "card";
             panel.style.marginTop = "20px";
             const content = document.createElement("div");
-            content.className = "panel-body";
+            content.className = "card-body";
             panel.appendChild(content);
-            const form = document.querySelector("#root > div > div > div > form");
+            const form = document.querySelector("#root > div > nav");
             form.insertAdjacentElement("afterend", panel);
             return content;
         }
@@ -31,9 +56,9 @@
         createCheckBoxList() {
             const langs = this.getLanguageList();
             const searchLangs = new Set();
+            this.content.innerHTML = null;
             langs.forEach((lang) => {
                 const label = document.createElement("label");
-                label.className = "checkbox-inline";
                 label.style.marginLeft = "10px";
                 const input = document.createElement("input");
                 input.type = "checkbox";
@@ -47,9 +72,9 @@
             });
         }
 
-        fetchData({ user_id }) {
+        fetchData({ user }) {
             const url = new URL("https://kenkoooo.com/atcoder/atcoder-api/results");
-            url.searchParams.set("user", user_id);
+            url.searchParams.set("user", user);
             return fetch(url).then((res) => res.json()).then((data) => (this.data = data));
         }
 
@@ -74,18 +99,11 @@
             document.querySelectorAll("a").forEach((elem) => {
                 const match = elem.href.match(/\/contests\/[^/]+\/tasks\/([^/]+)/);
                 const check = !!match && ids.has(match[1]);
-                elem.parentNode.classList.toggle("info", check);
+                elem.parentNode.classList.toggle("table-info", check);
             });
         }
     }
 
-    const loc = new URL(location.href);
-    const kind = loc.searchParams.get("kind") || "category";
-    if (kind === "category" || kind === "list") {
-        const app = new App();
-        const user_id = loc.searchParams.get("user");
-        app.fetchData({ user_id }).then(() => {
-            app.createCheckBoxList();
-        });
-    }
+    const app = new App();
+    app.start();
 })();
