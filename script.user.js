@@ -17,6 +17,7 @@
         }
 
         start() {
+            this.insertStyleSheet();
             window.addEventListener("hashchange", () => {
                 this.update();
             });
@@ -38,6 +39,13 @@
                     this.form = null;
                 }
             }
+        }
+
+        insertStyleSheet() {
+            const style = document.createElement("style");
+            document.head.appendChild(style);
+            const styleSheet = style.sheet;
+            styleSheet.insertRule(`.aplf-table-info { background-color: #bee5eb; }`, styleSheet.cssRules.length);
         }
 
         getCurrentUser() {
@@ -112,7 +120,7 @@
             document.querySelectorAll("a").forEach((elem) => {
                 const match = elem.href.match(/\/contests\/[^/]+\/tasks\/([^/]+)/);
                 const check = !!match && ids.has(match[1]);
-                elem.parentNode.classList.toggle("table-info", check);
+                elem.parentNode.classList.toggle("aplf-table-info", check);
             });
         }
     }
