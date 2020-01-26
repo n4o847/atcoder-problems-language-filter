@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AtCoder Problems Language Filter
 // @namespace    https://github.com/n4o847
-// @version      2.0.0
+// @version      2.0.1
 // @description  AtCoder Problems で言語を指定して色付けできるようにします
 // @author       n4o847
 // @match        https://kenkoooo.com/atcoder/*
